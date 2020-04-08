@@ -8,8 +8,9 @@ https://github.com/NTMC-Community/MatchZoo-py/blob/master/tutorials/classificati
 
 """
 import os, json
-
-import torch
+import sys
+print(sys.path)
+#import torch
 import matchzoo as mz
 import numpy as np
 import pandas as pd
@@ -27,14 +28,10 @@ MODEL_URI = get_model_uri(__file__)
 #### Load all models
 from mlmodels.model_keras.raw import keras_gan as kg
 
+
 MODEL_MAPPING = {
-    'AAE' : kg.aae.aae,
-
+    'AAE': kg
 }
-
-
-
-
 
 
 def get_config_file():
