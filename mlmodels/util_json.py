@@ -631,8 +631,8 @@ def test_json_extract_code():
     JSON file(s) it generates on stdout. user is responsible to check the
     contents of the files.
     """
-    srcfile1 = "model_tf/raw/27_byte_net.py"
-    srcfile2 = "model_tf/raw/6_encoder_gru.py"
+    srcfile1 = os_package_root_path(path_add="model_tf/raw/27_byte_net.py")
+    srcfile2 = os_package_root_path(path_add="model_tf/raw/6_encoder_gru.py")
     json_extract_code(srcfile1)
     json_extract_code(srcfile2)
 
