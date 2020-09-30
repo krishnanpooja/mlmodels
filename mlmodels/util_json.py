@@ -291,7 +291,7 @@ from mlmodels.util import os_folder_getfiles
 
 def jsons_to_df(json_paths):
     """
-
+    This function takes as a parameter list of json paths to be read and transformes them into a single Dataframe
     :param json_paths: list of json paths
     :type json_paths: list of str
     :return: DataFrame of the jsons
@@ -300,12 +300,14 @@ def jsons_to_df(json_paths):
     indexed_dicts = []
     problem = 0
     for i in range(len(json_paths)):
+        #For each json file, read file
         try:
             with open(json_paths[i]) as json_file:
                 d = dict()
                 d['Path'] = json_paths[i]
                 d['Json'] = json.load(json_file)
                 indexed_dicts.append(d)
+        #If there is a problem reading file, prints its path
         except:
             if problem == 0:
                 print("Files That have a structure problem:\n")
@@ -316,10 +318,11 @@ def jsons_to_df(json_paths):
     all_jsons = []
     for i in range(len(indexed_dicts)):
         all_jsons.append(indexed_dicts[i]['Json'])
-
+    #.json_normalize() help create nested json keys names
     ddf = pd.json_normalize(all_jsons)
     result=[]
     keys=list(ddf.columns)
+    #Create list of dictionaries of the given jsons, and add keys that contain extra information
     for i in range(len(all_jsons)):
         for k in keys:
             if(str(ddf[k][i]) != 'nan'):
@@ -358,6 +361,7 @@ def dict_update(fields_list, d, value):
         k = fields_list[0]
         if k not in list(d.keys()):
             d[k] = dict()
+        #Recursive call if the level of the key to be updated is > 1
         d[k] = dict_update(l1, d[k], value)
     else:
         k = fields_list[0]
@@ -368,7 +372,8 @@ def dict_update(fields_list, d, value):
 
 def json_csv_to_json(file_csv="", out_path="dataset/"):
     """
-
+    This function takes as a parameter csv file of jsons, create a normalized json structure,
+    and creates new normalized jsons in out_path
     :param csv: csv file containing jsons to be normalized
     :type csv: str
     :return: list of normalized jsons as dictionaries
@@ -380,11 +385,13 @@ def json_csv_to_json(file_csv="", out_path="dataset/"):
     dicts=[]
     for fp in paths:
         dd=dict()
+        #Here for each json, normalized json skeleton is created
         for fn in fullnames:
             l = fn.split('.')
             dd = dict_update(l, dd, None)
         json_ddf = ddf[ddf['file_path']==fp]
         filled_values = list(json_ddf['fullname'])
+        #Then update normalized json skeleton by entering filled values on the given json
         for fv in filled_values:
             dd.update(dict_update(fv.split('.'), dd, list(json_ddf[json_ddf['fullname'] == fv]['field_value'])[0]))
         dicts.append(dd)
@@ -393,17 +400,18 @@ def json_csv_to_json(file_csv="", out_path="dataset/"):
     #dataset_dir = os_package_root_path()+'dataset'
     #os.chdir(dataset_dir)
     paths = [p[len(dataset_dir)+1:] for p in paths]
-        
+    #Create new json paths respecting same hierarchical structure of input paths
     new_paths = []
     for i in range(len(paths)):
         lp = paths[i].split('/')
         lp[0]='normalized_jsons'
         dire = '/'.join(''.join(i) for i in lp[:len(lp)-1])
         new_paths.append(dire)
+    #Create new folders and subfolders of the new normalized jsons
     for p in list(set(new_paths)):
         if not os.path.exists(p):
             os.makedirs(p)
-
+    #Create the new normalized json files
     for i in range(len(paths)):
         with open(new_paths[i] + '/' + paths[i].split('/')[-1], 'w') as fp:
             json.dump(dicts[i], fp, indent=4)
