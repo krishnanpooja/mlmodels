@@ -292,11 +292,19 @@ from mlmodels.util import os_folder_getfiles
 def jsons_to_df(json_paths):
     """
     This function takes as a parameter list of json paths to be read and transformes them into a single Dataframe
+    the dataframe contain five different columns:
+            column1: file_path, original path of the json
+            column2: filename, original json file name
+            column3: json_name, highest key level that leads to the subkey in question
+            column4: fullname, name containing the subkey and its higher levels for example:
+                     fullname(F , {A:{B:1,C:{E:4,F:5}},D:3}) = "A.C.F"
+            column5: field_value, value of the subkey in question
     :param json_paths: list of json paths
     :type json_paths: list of str
     :return: DataFrame of the jsons
     :rtype: DataFrame
     """
+    #Indexed dictionaries is a list of dictionaries containing two keys, one for json path and the other for the dictionary of the json
     indexed_dicts = []
     problem = 0
     for i in range(len(json_paths)):
@@ -652,10 +660,10 @@ def test_json_conversion():
     json_folder_path = path_norm("dataset\\json")
     jsons_paths      = os_folder_getfiles(json_folder_path,ext = "*.json")
     df               = jsons_to_df(jsons_paths)
-    df.to_csv('table_json.csv')
+    df.to_csv(json_folder_path + '\\table_json.csv')
     print('csv created successfully')
     time.sleep(1)
-    dicts2 = json_csv_to_json('table_json.csv')
+    dicts2 = json_csv_to_json(json_folder_path + '\\table_json.csv')
     print(dicts2)
     return dicts2
 
@@ -664,5 +672,5 @@ def test_json_conversion():
 if __name__ == "__main__":
     import fire
     fire.Fire()
-    
+
     ### python mlmodels/util_json.py  test_json_conversion
